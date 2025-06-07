@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Download File - SafeDrop</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>Download Your File</h1>
+  <p id="timer">Loading...</p>
+  <div id="message"></div>
+  <a id="downloadBtn" href="#" style="display:none;">⬇️ Click to Download</a>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const filename = urlParams.get("file");
+    const timerEl = document.getElementById("timer");
+    const msgEl = document.getElementById("message");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    if (!filename) {
+      msgEl.textContent = "No file specified.";
+      timerEl.style.display = "none";
+      downloadBtn.style.display = "none";
+    } else {
+      downloadBtn.href = "/file/" + encodeURIComponent(filename);
+      
+      async function checkTimeLeft() {
+        try {
+          const res = await fetch("/api/timeleft/" + encodeURIComponent(filename));
+          const data = await res.json();
+
+          if (data.expired) {
+            timerEl.textContent = "";
+            msgEl.textContent = "❌ This link has expired or the file was deleted.";
+            downloadBtn.style.display = "none";
+            clearInterval(intervalId);
+          } else {
+            timerEl.textContent = `Time left: ${data.timeLeft} seconds`;
+            msgEl.textContent = "";
+            downloadBtn.style.display = "inline-block";
+          }
+        } catch (e) {
+          timerEl.textContent = "";
+          msgEl.textContent = "Error fetching file status.";
+          downloadBtn.style.display = "none";
+          clearInterval(intervalId);
+        }
+      }
+
+      // Check every second
+      checkTimeLeft();
+      const intervalId = setInterval(checkTimeLeft, 1000);
+    }
+  </script>
+</body>
+</html>
