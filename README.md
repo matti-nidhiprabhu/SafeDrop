@@ -17,5 +17,5 @@ Quick file sharing between friends
 
 Temporary file transfer during live sessions or demos
 
-![Screenshot](results/Index.jpg)
+![Screenshot](results/Index.png)
 
